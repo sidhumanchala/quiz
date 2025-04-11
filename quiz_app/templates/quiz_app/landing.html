@@ -1,0 +1,64 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Start Quiz</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+     <link rel="stylesheet" href="{% static 'css/landing_style.css' %}">
+
+</head>
+<body>
+{% now "Y" as year %}
+{% if messages %}
+    <div style="margin: 10px 0;">
+        {% for message in messages %}
+            <div style="background: #ffe6e6; color: #cc0000; padding: 12px; border-radius: 6px; margin-bottom: 10px;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="nav-left">
+        <div class="logo">MyQuiz</div>
+        <div class="social-icons">
+            <a href="https://www.linkedin.com/in/siddhardhamanchala" target="_blank"><i class="fab fa-linkedin"></i></a>
+            <a href="https://github.com/sidhumanchala" target="_blank"><i class="fab fa-github"></i></a>
+        </div>
+    </div>
+
+    <input type="checkbox" id="menu-toggle" class="menu-toggle">
+    <label for="menu-toggle" class="hamburger">&#9776;</label>
+
+    <ul class="nav-links">
+        {% if request.user.is_authenticated %}
+            <li><a href="#">Hi {{ request.user.first_name|default:request.user.username }}</a></li>
+            <li><a href="{% url 'logout' %}">Logout</a></li>
+        {% else %}
+            <li><a href="{% url 'login' %}">Login</a></li>
+            <li><a href="{% url 'register' %}">Register</a></li>
+        {% endif %}
+    </ul>
+</nav>
+
+<!-- Main content -->
+<div class="page-wrapper">
+    <div class="form-container">
+        <h2>Start Your Quiz</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Start Quiz</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

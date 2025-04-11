@@ -1,0 +1,88 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/quiz_page.css' %}">
+
+   
+    <script>
+        let timeLeft = {{ timer }};
+        let timerInterval;
+
+        window.onload = () => {
+            startTimer();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('quitForm')?.submit() || document.forms[0].submit();
+                } else {
+                    timeLeft--;
+                    document.getElementById('timer').innerText = formatTime(timeLeft);
+                }
+            }, 1000);
+        }
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+    </script>
+</head>
+<body>
+{% if messages %}
+    <div style="margin: 10px 0;">
+        {% for message in messages %}
+            <div style="background: #ffe6e6; color: #cc0000; padding: 12px; border-radius: 6px; margin-bottom: 10px;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+<div class="quiz-container">
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- Question and options -->
+        <p><strong>Question {{ question_index }} of {{ total }}:</strong></p>
+        <p>{{ question_data.question }}</p>
+
+        {% for key, value in question_data.options.items %}
+            <label>
+                <input type="radio" name="selected_option" value="{{ key }}" {% if saved_answer == key %}checked{% endif %}>
+                {{ key }}. {{ value }}
+            </label>
+        {% endfor %}
+
+       <!-- Navigation buttons -->
+<div class="buttons">
+    {% if question_index > 1 %}
+        <button type="submit" name="action" value="previous" class="btn btn-prev">Previous</button>
+    {% endif %}
+
+    {% if question_index < total %}
+        <button type="submit" name="action" value="next" class="btn btn-next">Next</button>
+    {% else %}
+        <button type="submit" name="action" value="quit" class="btn btn-submit">Submit</button>
+    {% endif %}
+
+    <button type="submit" name="action" value="quit" class="btn btn-quit">Quit</button>
+</div>
+
+    </form>
+
+    <!-- Timer -->
+    <div class="timer-container">
+        <p><strong>Time Remaining:</strong> <span id="timer"></span></p>
+    </div>
+</div>
+
+</body>
+</html>

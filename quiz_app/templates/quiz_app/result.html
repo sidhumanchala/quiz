@@ -1,0 +1,81 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz Result</title>
+    <link rel="stylesheet" href="{% static 'css/result.css' %}">
+
+</head>
+<body>
+{% if messages %}
+    <div id="message-container">
+        {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+
+    </div>
+{% endif %}
+<div class="page-wrapper">
+   <div class="result-container">
+        <h2>🎉 Quiz Completed!</h2>
+        <p><strong>Your Score:</strong> {{ score }}%</p>
+        <p><strong>Correct Answers:</strong> {{ correct }} out of {{ total }}</p>
+        <p><strong>Wrong Answers:</strong> {{ wrong }}</p>
+        <p><strong>Unanswered:</strong> {{ unanswered }}</p>
+
+        {% if negative_marking %}
+            <p><strong>Note:</strong> ⚠️ Negative marking was applied (-0.25 per wrong answer)</p>
+        {% endif %}
+
+       <form method="post">
+    {% csrf_token %}
+    <div class="buttons">
+        <button type="submit" name="action" value="home" class="btn btn-home">🏠 Home</button>
+        <button type="submit" name="action" value="retake" class="btn btn-retake">🔁 Retake Quiz</button>
+    </div>
+</form>
+
+
+        <div class="question-list">
+            <h3>Review Your Answers:</h3>
+            <div class="note"> <em>Note:</em> Some questions might not be 100% accurate.</div>
+            <p>Total Questions: {{ questions_with_answers|length }}</p>
+
+            {% for q in questions_with_answers %}
+                <div class="question">
+                    <p><strong>Q{{ forloop.counter }}:</strong> {{ q.question_text }}</p>
+                    <ul>
+                        {% for key, value in q.options.items %}
+                            <li>
+                                {{ key }}. {{ value }}
+                                {% if key == q.correct_option %}
+                                    <span class="correct">← Correct</span>
+                                {% elif key == q.selected_option %}
+                                    <span class="wrong">← Your Answer</span>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    {% if q.selected_option %}
+                        {% if q.is_correct %}
+                            <p class="correct">✔ You got it right!</p>
+                        {% else %}
+                            <p class="wrong">✘ Incorrect</p>
+                        {% endif %}
+                    {% else %}
+                        <p class="wrong">❓ You did not answer this question.</p>
+                    {% endif %}
+                    <p><strong>Time Taken:</strong> {{ q.time_taken }} seconds</p>
+                </div>
+
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
